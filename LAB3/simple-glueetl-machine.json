@@ -1,0 +1,20 @@
+{
+  "Comment": "A description of my state machine",
+  "StartAt": "nytaxi-glue-job",
+  "States": {
+    "nytaxi-glue-job": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::glue:startJobRun.sync",
+      "Parameters": {
+        "JobName": "ny-taxi-transformed-console-jb",
+        "Arguments": {
+          "--JOB_NAME.$": "$.JOB_NAME",
+          "--BUCKET_NAME.$": "$.BUCKET_NAME",
+          "--SRC_PREFIX.$": "$.SRC_PREFIX",
+          "--TRG_PREFIX.$": "$.TRG_PREFIX"
+        }
+      },
+      "End": true
+    }
+  }
+}

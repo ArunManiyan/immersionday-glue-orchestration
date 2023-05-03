@@ -1,0 +1,49 @@
+{
+    "Comment": "A description of my state machine",
+    "StartAt": "eventdriven-gluejob",
+    "States": {
+      "eventdriven-gluejob": {
+        "Type": "Task",
+        "Resource": "arn:aws:states:::glue:startJobRun.sync",
+        "Parameters": {
+          "JobName": "eventdriven-etl",
+          "Arguments": {
+            "--JOB_NAME.$": "$.id",
+            "--bucketName.$": "$.detail.requestParameters.bucketName",
+            "--key.$": "$.detail.requestParameters.key"
+          }
+  
+        },
+        "Next": "Choice"
+      },
+      "Choice": {
+        "Type": "Choice",
+        "Choices": [
+          {
+            "Variable": "$.JobRunState",
+            "StringEquals": "SUCCEEDED",
+            "Next": "succeeded-publish"
+          }
+        ],
+        "Default": "failure-sns"
+      },
+      "succeeded-publish": {
+        "Type": "Task",
+        "Resource": "arn:aws:states:::sns:publish",
+        "Parameters": {
+          "Message.$": "$",
+          "TopicArn": "arn:aws:sns:us-east-1:changeme:lab8-sns-success-notification"
+        },
+        "End": true
+      },
+      "failure-sns": {
+        "Type": "Task",
+        "Resource": "arn:aws:states:::sns:publish",
+        "Parameters": {
+          "Message.$": "$",
+          "TopicArn": "arn:aws:sns:us-east-1:changeme:lab8-sns-failure-notification"
+        },
+        "End": true
+      }
+    }
+  }

@@ -1,0 +1,14 @@
+aws events put-rule \
+    --name "glueworkshop-rule" \
+    --event-pattern "{ \
+                        \"source\": [\"aws.s3\"], \
+                        \"detail-type\": [\"AWS API Call via CloudTrail\"], \
+                        \"detail\": { \
+                            \"eventSource\": [\"s3.amazonaws.com\"], \
+                            \"eventName\": [\"PutObject\"], \
+                            \"requestParameters\": { \
+                                \"bucketName\": [\"${BUCKET_NAME}\"], \
+                                \"key\": [{\"prefix\": \"input/lab8/eventdriven/\"}]
+                            } \
+                        } \
+                    }"

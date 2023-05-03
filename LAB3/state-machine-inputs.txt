@@ -1,0 +1,7 @@
+{
+  "JOB_NAME": "glue-step-job",
+  "BUCKET_NAME": "glueworkshop-xyzxyzxyz-us-east-1",
+  "SRC_PREFIX": "data/raw/step-green",
+  "TRG_PREFIX" : "target/step-transformed"
+}
+

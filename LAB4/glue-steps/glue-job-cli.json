@@ -1,0 +1,29 @@
+{
+    "Name": "eventdriven-etl",
+    "Role": "arn:aws:iam::changeme:role/AWSGlueServiceRole-glueworkshop",
+    "ExecutionProperty": {
+        "MaxConcurrentRuns": 1
+    },
+    "Command": {
+        "Name": "eventdriven-etl",
+        "ScriptLocation": "s3://glueworkshop-changeme-us-east-1/trainingday-scripts/eventdriven-etl.py",
+        "PythonVersion": "3"
+    },
+    "DefaultArguments": {
+        "--TempDir": "s3://glueworkshop-changeme-us-east-1/temp/",
+        "--enable-metrics": "",
+        "--job-bookmark-option": "job-bookmark-disable",
+        "--job-language": "python",
+        "--JOB_NAME": "cli-gluejob",
+        "--type" :"Spark",
+        "--bucket_name": "glueworkshop-changeme-us-east-1",
+        "--key" :"data/raw/step-green"
+    },
+    "MaxRetries": 0,
+    "Timeout": 60,
+    "WorkerType": "G.1X",
+    "NumberOfWorkers": 10,
+    "GlueVersion": "2.0",
+    "NumberOfWorkers" :4
+
+}

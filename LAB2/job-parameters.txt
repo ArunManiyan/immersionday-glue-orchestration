@@ -1,0 +1,4 @@
+--BUCKET_NAME: gluetraining-accountnumber
+--SRC_PREFIX: data/raw/step-green
+--TRG_PREFIX: target/glue-transformed
+--JOB_NAME : glue-console-job
