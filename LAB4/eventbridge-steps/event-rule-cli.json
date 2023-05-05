@@ -1,3 +1,6 @@
+//Step 1 - Create Event bridge rule - Copy, past and run into your Cloud9 terminal
+
+
 aws events put-rule \
     --name "glueworkshop-rule" \
     --event-pattern "{ \
@@ -12,3 +15,15 @@ aws events put-rule \
                             } \
                         } \
                     }"
+
+//Step 2 - Attach StepFunctino target to event bridge rule - Copy, past and run into your Cloud9 terminal
+
+aws events put-targets \
+    --rule glueworkshop-rule \
+    --targets "Id"="stepfunction","Arn"="arn:aws:states:${AWS_REGION}:${AWS_ACCOUNT_ID}:stateMachine:MyStateMachine","RoleArn"="arn:aws:iam::${AWS_ACCOUNT_ID}:role/AWSEventBridgeInvokeRole-glueworkshop" \
+    --region ${AWS_REGION}
+
+
+//Step 3 - Simulate an s3 Create Object by running this copy command in your Cloud9 terminal
+
+aws s3 cp ~/environment/glue-workshop/data/lab1/csv/sample.csv s3://${BUCKET_NAME}/input/lab8/eventdriven/
