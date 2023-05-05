@@ -1,3 +1,4 @@
+//Step 1 - Copy and past this step function definition into step function console
 
 {
   "Comment": "A description of my state machine",
@@ -79,3 +80,16 @@
     }
   }
 }
+
+//Once pasted, go to workflow Studio and update the SNS topics: Select "Data Failed to Write Message" task and under the "API Parameters" 
+// drop down menu select your failure SNS topic ARN. Repeat the same for Success SNS topics
+
+// To receive an SNS notification, got to the SNS AWS console and select the topic you'd like to subscribe to. then select "Create Subscription", 
+// and email from "Protocol" drop down. Enter your email address you'd like to receive the notification on then hit "Create subscription". 
+// You will then receive an email to confirm your subscription.
+
+
+
+
+
+
