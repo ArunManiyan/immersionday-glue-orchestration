@@ -1,0 +1,81 @@
+
+{
+  "Comment": "A description of my state machine",
+  "StartAt": "nytaxi-glue-job",
+  "States": {
+    "nytaxi-glue-job": {
+      "InputPath": "$",
+      "ResultPath": "$.gluejobresponse",
+      "Type": "Task",
+      "Resource": "arn:aws:states:::glue:startJobRun.sync",
+      "Parameters": {
+        "JobName": "ny-taxi-transformed-console-jb",
+        "NumberOfWorkers.$": "$.glue_max_capacity_dpus",
+        "WorkerType": "G.1X",
+        "Arguments": {
+          "--JOB_NAME.$": "$.JOB_NAME",
+          "--BUCKET_NAME.$": "$.BUCKET_NAME",
+          "--SRC_PREFIX.$": "$.SRC_PREFIX",
+          "--TRG_PREFIX.$": "$.TRG_PREFIX"
+        }
+      },
+      "Next": "Notification Choice",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "Notification Choice",
+          "ResultPath": "$.glue_error"
+        }
+      ]
+    },
+    "Notification Choice": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "And": [
+            {
+              "Variable": "$.gluejobresponse.JobRunState",
+              "IsPresent": true
+            },
+            {
+              "Variable": "$.gluejobresponse.JobRunState",
+              "StringEquals": "SUCCEEDED"
+            }
+          ],
+          "Next": "Data Written Success Message"
+        }
+      ],
+      "Default": "Data Failed to Write Message"
+    },
+    "Data Written Success Message": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "Subject.$": "States.Format('Data successfully written from {} into S3', $.JOB_NAME)",
+        "Message.$": "States.Format('Data with parameters: {} was successfully written from {} into S3.\n\n It can be found under path:\n {}',  $.SRC_PREFIX, $.BUCKET_NAME, $.TRG_PREFIX)",
+        "TopicArn": "arn:aws:sns:us-east-1:360258607010:lab8-sns-success-notification"
+      },
+      "Next": "Succeed State"
+    },
+    "Data Failed to Write Message": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "Subject.$": "States.Format(' {} Glue job failed', $.JOB_NAME)",
+        "Message.$": "States.Format('Data with parameters: {} failed to write from {} into path {}',  $.BUCKET_NAME, $.SRC_PREFIX, $.SRC_PREFIX)",
+        "TopicArn": "arn:aws:sns:us-east-1:360258607010:lab8-sns-failure-notification"
+      },
+      "Next": "Fail State"
+    },
+    "Fail State": {
+      "Type": "Fail",
+      "Error": "ErrorCode",
+      "Cause": "Caused By Message"
+    },
+    "Succeed State": {
+      "Type": "Succeed"
+    }
+  }
+}
