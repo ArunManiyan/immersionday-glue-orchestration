@@ -1,0 +1,4 @@
+aws events put-targets \
+    --rule glueworkshop-rule \
+    --targets "Id"="stepfunction","Arn"="arn:aws:states:${AWS_REGION}:${AWS_ACCOUNT_ID}:stateMachine:MyStateMachine","RoleArn"="arn:aws:iam::${AWS_ACCOUNT_ID}:role/AWSEventBridgeInvokeRole-glueworkshop" \
+    --region ${AWS_REGION}
