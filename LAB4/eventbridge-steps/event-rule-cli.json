@@ -1,3 +1,6 @@
+//Step 1 - Create Event bridge rule - Copy, past and run into your Cloud9 terminal
+
+
 aws events put-rule \
     --name "glueworkshop-rule" \
     --event-pattern "{ \
@@ -12,3 +15,41 @@ aws events put-rule \
                             } \
                         } \
                     }"
+
+//Step 2 - Attach StepFunctino target to event bridge rule - Copy, past and run into your Cloud9 terminal
+
+aws events put-targets \
+    --rule glueworkshop-rule \
+    --targets "Id"="stepfunction","Arn"="arn:aws:states:${AWS_REGION}:${AWS_ACCOUNT_ID}:stateMachine:MyStateMachine","RoleArn"="arn:aws:iam::${AWS_ACCOUNT_ID}:role/AWSEventBridgeInvokeRole-glueworkshop" \
+    --region ${AWS_REGION}
+
+
+//Step 3 - Simulate an s3 Create Object by running this copy command in your Cloud9 terminal
+
+aws s3 cp ~/environment/glue-workshop/data/lab1/csv/sample.csv s3://${BUCKET_NAME}/input/lab8/eventdriven/
+
+// * We want to then update the EventBridge rule by navigating to the eventbridge console 
+// * Select the rule we just created.
+// * Under the rule, navigate to the target tab. select the target then edit. 
+// * Once in the edit console of the event rule target, under additional settings select "Input Transformer" from under 
+// the "Configure target input" drop down menu. 
+// * Select "Confihure Input rule"
+// * Copy and paste the following code to the "Target Input Transformer": 
+            {
+                "Bucket_Name":"$.detail.requestParameters.bucketName",
+                "SRC_PREFIX":"$.detail.requestParameters.key"
+            }
+// * Copy and paste the following code to the "Configure Input Transformer": 
+         {
+  "glue_max_capacity_dpus": 2,
+  "JOB_NAME": "ny-taxi-transformed-console-jb",
+  "BUCKET_NAME": "<Bucket_Name>",
+  "SRC_PREFIX": "<SRC_PREFIX>",
+  "TRG_PREFIX": "target/step-transformed"
+}
+
+//* Select "Confirm", "Next", "Next" then "Update Rule"
+
+// * running the s3 copy command will now trigger the step function and the glue job then send a notification
+aws s3 cp ~/environment/glue-workshop/data/lab1/csv/sample.csv s3://${BUCKET_NAME}/input/lab8/eventdriven/
+
